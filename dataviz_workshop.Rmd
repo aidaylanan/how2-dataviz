@@ -164,7 +164,89 @@ ggplot(data = na.omit(movies2), aes(x = critics_score, fill = kids)) +
   geom_density(alpha = 0.5) + scale_fill_discrete(name = "Kid-Friendly?", labels = c("No", "Yes"))
 ```  
   
-  
+### Recreating The Economist graph using ggplot
+
+![Source: https://www.economist.com/blogs/dailychart/2011/12/corruption-and-development](https://cloud.githubusercontent.com/assets/16123495/22446702/db68941e-e702-11e6-861b-8624e58a8483.png)
+
+#### Step 1: Data and scatter plot
+
+```{r}
+library(ggplot2)
+
+# import the dataset first
+data <- read.csv("EconomistData.csv")
+
+# check if the data has been imported correctly
+head(data)
+
+# edit the region labels to match
+data$Region <- factor(data$Region,
+                     levels = c("EU W. Europe",
+                                "Americas",
+                                "Asia Pacific",
+                                "East EU Cemt Asia",
+                                "MENA",
+                                "SSA"),
+                     labels = c("OECD",
+                                "Americas",
+                                "Asia &\nOceania",
+                                "Central &\nEastern Europe",
+                                "Middle East &\nnorth Africa",
+                                "Sub-Saharan\nAfrica"))
+
+# x-axis is CPI and y-axis is HDI, points are colored in according to region variable (color)
+plot_one <- ggplot(data, aes(x = CPI, y = HDI, color = Region)) 
+
+# basic scatter plot using our data
+plot_one + geom_point()
+```
+
+#### Step 2: Adding the model/trend line
+
+```{r}
+# trial and error tells us that the model is y ~ x + log(x)
+# add the regression line first so the points are plotted on top
+# the options for geom_smooth set the color, formula of the line
+# as well as the get rid of the confidence interval around the smooth
+plot_two <- plot_one +
+  geom_smooth(mapping = aes(linetype = "r2"),
+              method = "lm",
+              formula = y ~ x + log(x),
+              se = FALSE,
+              color = "red") +
+  geom_point()
+
+plot_two
+```
+
+
+#### Step 3: Point modification & labeling
+```{r}
+generateRPointShapes<-function(){
+  oldPar<-par()
+  par(font=2, mar=c(0.5,0,0,0))
+  y=rev(c(rep(1,6),rep(2,5), rep(3,5), rep(4,5), rep(5,5)))
+  x=c(rep(1:5,5),6)
+  plot(x, y, pch = 0:25, cex=1.5, ylim=c(1,5.5), xlim=c(1,6.5), 
+       axes=FALSE, xlab="", ylab="", bg="orange")
+  text(x, y, labels=0:25, pos=3)
+  par(mar=oldPar$mar,font=oldPar$font )
+}
+generateRPointShapes()
+```
+
+
+```{r}
+
+# 
+plot_three <- plot_two + geom_point(aes(color = Region), 
+                                    shape = 21, 
+                                    fill = "white", 
+                                    size = 3, 
+                                    stroke = 1.5)
+
+plot_three
+```
 
 ### Helpful ggplot Resources:
 - [ggplot cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf): Quick reference guide for many of ggplot's available plot types and plot customization arguments
@@ -172,3 +254,4 @@ ggplot(data = na.omit(movies2), aes(x = critics_score, fill = kids)) +
 
 ### Presentation Sources
 - This module is greatly inspired by class materials from the 2018 iXperience Data Science course taught by Andrew Collier and Zack Chauvin. 
+- In addition, the idea for the Economist graph comes from [Institute For Quantitative Social Science at Harvard](http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html)
