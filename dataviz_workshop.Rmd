@@ -1,0 +1,174 @@
+---
+title: "Intro to Data Viz in R"
+author: "Ignat Kulinka, Aida Ylanan"
+date: "4/15/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+  
+## ggplot Overview: How Many Ways Can We Visualize Data? 
+  
+If you haven't already, be sure to install the packages we'll be using in today's workshop: 
+```{r}
+#install.packages("ggplot2")
+#install.packages("readr")
+#install.packages("dplyr")
+```  
+   
+The dataset we'll examine in this part of the module is `movies.csv`. Let's read it into R:
+```{r warning = FALSE}
+library(readr)
+movies <- read_csv("https://www.dropbox.com/s/6aq2vy59ac3clbf/movies.csv?dl=1")
+```   
+    
+Our dataset `movies` contains information on 32 aspects of 321 different movies. The generous number of variables and observations, along with rich variety in variable types, allow us to visualize the data in many different ways.
+Given the numerous amount of directions this analysis could go, one helpful strategy in conducting effective data analysis is to generate a series of questions that could be answered with the data you have. This involves looking at and understanding the dataset's variables, and even thinking about how they might be altered or combined to form new features. We'll demonstrate with a few question-and-answer examples of data viz with `movies`.   
+   
+   
+### Q1: What does the data even look like?   
+Scatterplots are simple but intuitive plots that can give us a general idea of what our data looks like, i.e. how our variables interact with each other (if at all).
+As an example, we'll answer the question **How does the audience score of movies compare with the critic score?**:
+```{r}
+library(ggplot2)
+ggplot(data = movies, aes(x = audience_score, y = critics_score)) + geom_point()
+```  
+  
+We can see in the graph above that audience score and critic score are roughly positiviely correlated -- movies with high audience scores often have high critics scores too. There are, however, quite a few movies where audiences and critics disagree.
+
+Let's take a look at the code that we used to build the plot:  
+- `ggplot()` indicates which dataset you're using and which features from the dataset you're interested in visualizing. `aes()` can take on any number of arguments, depending on the kind of visualization you want to make.  
+- `geom_point()` indicates that we want to make a scatterplot. This argument depends heavily upon the variables listed in `ggplot()` and could be changed, so long as the variable types match the graph being made.  
+
+The overall structure of ggplot graphics follow this general pattern:
+```{r}
+# ggplot(
+#   data = [dataframe], 
+#   aes(
+#     x = [var_x], y = [var_y], 
+#     color = [var_for_color], 
+#     fill = [var_for_fill], 
+#     shape = [var_for_shape]
+#   )
+# ) +
+#   geom_[some_geom]([geom_arguments]) +
+#   ... # other geometries
+# scale_[some_axis]_[some_scale]() +
+#   facet_[some_facet]([formula]) +
+#   ... # other options
+```
+
+If we wanted to plot a linear relationship between critics score and audience score, all we need to do is add `geom_smooth` after `geom_point()`:
+```{r}
+ggplot(data = movies, aes(x = audience_score, y = critics_score)) + geom_point() + geom_smooth()
+```  
+  
+(Note: `geom_smooth()` doesn't tell you much about the actual linear model it displays. When tasked to make a functional linear model with proper coefficients/predictions/etc, you're much better off using a function like `lm()`.)
+  
+Let's take a closer look at `aes()`.
+  
+  
+### Q2: How do audience score and critics score differ across genres?  
+We can answer this question by including one more argument in `aes()` that allows us to specify that we're interested in differentiating movies by their genre: 
+```{r}
+ggplot(data = movies, aes(x = audience_score, y = critics_score, color = genre)) +
+  geom_point(alpha = 0.5)    # alpha argument adjusts point opacity 
+``` 
+  
+Filling the `color` argument allows us to add another dimension to the data we're visualizing. In the plot above, different colors indicated different movie genres. Since genre is a discrete variable, our legend adjusted itself accordingly by giving each genre a different color.   
+We can use `color` to add continuous variables too, like in this plot that differentiates movies by their length: 
+```{r}
+ggplot(data = movies, aes(x = audience_score, y = critics_score, color = runtime)) +
+  geom_point(alpha = 0.5)
+```
+
+Even with the added variable, we're still omitting a lot of other variables available in the data. One way to add yet another feature to the visualization is through faceting.
+
+
+### Q3: Is the correlation between audience score/critics score consistent between documentaries, feature films, and TV movies?
+This question requires us to include information about the specific type of movie being analyzed. One way to think about this involves partitioning the dataset by particular categories, which can be done uisng `facet_grid()`:
+```{r}
+ggplot(data = movies, aes(x = audience_score, y = critics_score, color = genre)) +
+  geom_point(alpha = 0.5) +
+  facet_grid(. ~ title_type)     # the "." references the previous object, 
+                                 # i.e. that the quality "title_type" is being "~" compared to
+                                 # audience/critic score 
+```
+We could switch the use of genre and title type by faceting around the genre variable instead:
+```{r}
+ggplot(data = movies, aes(x = audience_score, y = critics_score, color = title_type)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~genre)
+```
+
+`facet_grid()` can even introduce two new variables at once:
+```{r}
+ggplot(data = movies, aes(x = audience_score, y = critics_score, color = genre)) +
+  geom_point(alpha = 0.5) +
+  facet_grid(audience_rating ~ title_type)
+```
+   
+   
+### Q4: How do audience rating distributions change along movie runtime?
+Questions about distributions can be explored using density plots, made by adding `geom_density()` to the ggplot function call. We'll take a look at one now:
+```{r}
+ggplot(data = na.omit(movies), aes(x = runtime, fill = audience_rating)) +
+  geom_density(alpha = 0.5) + ylim(0, .04) + xlim(0, 200)
+```  
+  
+Alongside the density plot function, we added a few more arguments and function calls to adjust the appearance of our plot:  
+- We called `na.omit()` on our movies dataset to remove the missing observation from our dataset, which would have added noise to plot.  
+- Adjusting the alpha argument to our `geom_density()` call allows us to layer the distributions such that one can be seen behind the other. Decreasing the alpha value makes the colors lighter and easier to see through.  
+- Two additional function calls, `xlim()` and `ylim()`, allow us to add limits to our x- and y-axes.  
+   
+As we see from the plot above, adding extra function calls to our original ggplot/geom calls lets us adjust individual features of the graph itself. 
+  
+  
+### Q5: How many different genres are represented in this data set? Which ones appear most frequently?
+Both questions involve simple observation counts, which can be easily visualized with a bar graph:
+```{r}
+ggplot(data = movies, aes(x = genre)) +
+  geom_bar() + theme(axis.text.x=element_text(angle = 45, hjust = 1))
+```
+
+Because a few of these genre names are really long, we had to adjust the x-axis text to make it more readable. We did this using `theme()`, a useful function call that allows you to modify the non-data components of the plot. The text was shifted down a bit and rotated by 45 degrees, both of which were specified in an `element_text()` argument within `theme()`.  
+The function calls are pretty intuitive when you see them; the tricky part is just remembering what certain functions and arguments are called. Thankfully, the ggplot documentation does a great job of explaining functions and listing the arguments within them. You can read up on the functions and arguments we used above by calling `?theme` or `?element_text`.  
+  
+  
+### Q6: How many movies in the dataset are kid-friendly?  
+Data exploration challenges you to to look at the data you have in as many ways as you can. This sometimes involves creating new variables that can categorize the observations you make.  
+Below I've generated a copy of our movies dataset and included a new variable, kids, that will indicate whether or not the movie is kid-friendly:
+```{r}
+library(dplyr)
+
+# create a copy of our movies dataset with an empty column titled "kids"
+movies2 <- movies %>% mutate(., kids = rep(0, nrow(movies)))
+
+# populate the new "kids" column:
+# 1 = kids movie (G or PG rating), 0 = not a kids movie (any other rating)
+for(i in 1:nrow(movies2)){
+  if(movies2$mpaa_rating[i] == "G" | movies2$mpaa_rating[i] == "PG"){
+    movies2$kids[i] <- 1
+  }
+}
+
+# change kids variable type from numeric (continuous) to factor (discrete)
+movies2$kids <- as.factor(movies2$kids)
+```   
+   
+Let's use this new column to visualize how many kids movies there are in the dataset:
+```{r}
+ggplot(data = na.omit(movies2), aes(x = critics_score, fill = kids)) +
+  geom_density(alpha = 0.5) + scale_fill_discrete(name = "Kid-Friendly?", labels = c("No", "Yes"))
+```  
+  
+  
+
+### Helpful ggplot Resources:
+- [ggplot cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf): Quick reference guide for many of ggplot's available plot types and plot customization arguments
+
+
+### Presentation Sources
+- This module is greatly inspired by class materials from the 2018 iXperience Data Science course taught by Andrew Collier and Zack Chauvin. 
