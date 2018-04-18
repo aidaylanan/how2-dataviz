@@ -20,6 +20,7 @@ If you haven't already, be sure to install the packages we'll be using in today'
 #install.packages("dplyr")
 #install.packages("ggrepel")
 #install.packages("grid")
+#install.packages("plotly")
 ```  
    
 The dataset we'll examine in this part of the module is `movies.csv`. Let's read it into R:
