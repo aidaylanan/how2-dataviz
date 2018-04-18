@@ -3,6 +3,8 @@ title: "Intro to Data Viz in R"
 author: "Ignat Kulinka, Aida Ylanan"
 date: "4/15/2018"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -170,7 +172,6 @@ ggplot(data = na.omit(movies2), aes(x = critics_score, fill = kids)) +
 ![Source: https://www.economist.com/blogs/dailychart/2011/12/corruption-and-development](https://cloud.githubusercontent.com/assets/16123495/22446702/db68941e-e702-11e6-861b-8624e58a8483.png)
 
 #### Step 1: Data, packages and a scatter plot
-
 ```{r}
 library(ggplot2)
 library(ggrepel)
@@ -205,18 +206,17 @@ plot_one + geom_point()
 ```
 
 #### Step 2: Adding the model/trend line
-
 ```{r}
-# trial and error tells us that the model is y ~ x + log(x)
+# trial and error tells us that the model is probably y ~ log(x)
 # add the regression line first so the points are plotted on top
 # the options for geom_smooth set the color, formula of the line
 # as well as the get rid of the confidence interval around the smooth
 plot_two <- plot_one +
   geom_smooth(mapping = aes(linetype = "r2"),
               method = "lm",
-              formula = y ~ x + log(x),
+              formula = y ~ log(x),
               se = FALSE,
-              color = "red") +
+              color = "#ed0911") +
   geom_point()
 
 plot_two
@@ -282,39 +282,109 @@ pointsToLabel <- c("Russia", "Venezuela", "Iraq", "Myanmar", "Sudan",
                    "United States", "Germany", "Britain", "Barbados", "Norway",
                    "Japan", "New Zealand", "Singapore")
 
+# here we are using ggrepel package's geom_text_repel
+# it allows us to place labels on the plot with text being repeled
+# from points and other text to avoid/minimize overlapping 
 plot_three <- plot_three_a + 
   geom_text_repel(aes(label = Country),
-                   color = "gray20",
-                   data = subset(data, Country %in% pointsToLabel),
-                   force = 10)
+                  color = "gray20",
+                  # Add extra padding around each text label
+                  box.padding = 1.15,
+                  # Add extra padding around each data point
+                  point.padding = .75,
+                  # only plot the selected labels
+                  data = subset(data, Country %in% pointsToLabel),
+                  force = 1)
 plot_three
 ```
 
 ### Step 4: Titles and axes
-
 ```{r}
-(plot_four <- plot_three +
+
+# calculate the R^2 of our model and then create a label 
+mR2 <- summary(lm(HDI ~ log(CPI), data = data))$r.squared
+mR2 <- paste0(format(mR2, digits = 2), "%")
+
+# here we are adding the axes titles, as well as set the limits and 
+# breaks for each axis
+plot_four <- plot_three +
   scale_x_continuous(name = "Corruption Perceptions Index, 2011 (10=least corrupt)",
                      limits = c(.9, 10.5),
                      breaks = 1:10) +
-  scale_y_continuous(name = "Human Development Index, 2011 (1=Best)",
+  scale_y_continuous(name = "Human Development Index, 2011 (1=best)",
                      limits = c(0.2, 1.0),
                      breaks = seq(0.2, 1.0, by = 0.1)) +
+  # add the colors for the Regions variable as well as display
+  # the legend all in one line
   scale_color_manual(name = "",
-                     values = c("#24576D",
-                                "#099DD7",
-                                "#28AADC",
-                                "#248E84",
-                                "#F2583F",
-                                "#96503F")) +
-  ggtitle("Corruption and Human development"))
+                     values = c("#003a54",
+                                "#009cd7",
+                                "#72d1f6", 
+                                "#007c70",
+                                "#f13e20",
+                                "#711300"),
+                     guide = guide_legend(nrow = 1)) +
+  # change the label for our regression line
+  scale_linetype(name = "",
+                 breaks = "r2",
+                 labels = list(bquote(R^2==.(mR2))),
+                 guide = guide_legend(override.aes = list(size = 2))) + 
+  # add the title
+  ggtitle("Corruption and Human development\n")
 
+
+plot_four
 ```
+
+
+### Step 5: Theme edits
+```{r}
+plot_five <- plot_four +
+  # start with a simple theme and then addon/modify elements
+  theme_bw() +
+  # element_blank() is way to delete/clear a part of the plot
+  theme(panel.border = element_blank(),
+        panel.grid = element_blank(),
+        panel.grid.major.y = element_line(color = "gray"),
+        axis.line.x = element_line(color = "gray"),
+        axis.title.y = element_text(face = "italic"),
+        axis.title.x = element_text(face = "italic"),
+        # delete the ticks marks on the y-axis
+        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_line(color = "gray"),
+        # move the ticks inward by setting negative length 
+        axis.ticks.length = unit(-.15, "cm"),
+        # set the font size for axis tick labels to be 11
+        # creat a padding box around the tick labels
+        # units takes border lengths in this order: (t)op, (r)ight, (b)ottom, (l)eft
+        # (To remember order, think trouble)
+        axis.text.x = element_text(size = 11,
+                                   margin=unit(c(0.35,0.35,0.35,0.35), "cm")),
+        axis.text.y = element_text(size = 11,
+                                   margin = unit(c(0, 0.25, 0, 0.25), "cm")),
+        legend.position = "top",
+        legend.direction = "horizontal",
+        legend.box = "horizontal",
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size = 16,
+                                  face = "bold"))
+
+plot_five
+```
+
+
+### Step 6: Export the graph
+```{r}
+png(filename = "economist_plot.png", width = 800)
+plot_five
+dev.off()
+```
+
 
 ### Helpful ggplot Resources:
 - [ggplot cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf): Quick reference guide for many of ggplot's available plot types and plot customization arguments
-
+- [extensions for ggplot](http://www.ggplot2-exts.org/gallery/): A library of great/quality extensions for ggplot. Some are aimed at expanding the number of geom's and themes (ggforce, ggthemr), while some help with making pretty graphs without too much fiddling with settings (cowplot).
 
 ### Presentation Sources
 - This module is greatly inspired by class materials from the 2018 iXperience Data Science course taught by Andrew Collier and Zack Chauvin. 
-- In addition, the idea for the Economist graph comes from [Institute For Quantitative Social Science at Harvard](http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html)
+- In addition, the idea for the Economist graph comes from [Institute For Quantitative Social Science at Harvard](http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html) as well as [RPubs](http://rstudio-pubs-static.s3.amazonaws.com/284329_c7e660636fec4a42a09eed968dc47f32.html)
