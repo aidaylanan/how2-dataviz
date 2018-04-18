@@ -388,7 +388,16 @@ plot_five
 ```
 
 
-### Helpful ggplot Resources:
+### Another Quick Example:
+Below is a quick example on how to use `plotly` package to create an interactive graph of the Auckland's Maunga Whau Volcano! The same plot that is featured in the Facebook banner for this event. 
+```{r}
+library(plotly)
+# volcano is a numeric matrix that ships with R
+p <- plot_ly(z = ~volcano) %>% add_surface()
+p
+```
+
+### Helpful `ggplot` Resources:
 - [ggplot2 cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf): Quick reference guide for many of ggplot's available plot types and plot customization arguments
 - [extensions for ggplot](http://www.ggplot2-exts.org/gallery/): A library of great/quality extensions for ggplot. Some are aimed at expanding the number of geom's and themes (ggforce, ggthemr), while some help with making pretty graphs without too much fiddling with settings (cowplot).
 - [ggplot2 textbook](https://www.springer.com/us/book/9783319242750): Hadley Wickham's (creator of ggplot2) easy-to-read textbook, available for free download through UCLA's WiFi/VPN!
