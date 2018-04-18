@@ -144,7 +144,7 @@ The function calls are pretty intuitive when you see them; the tricky part is ju
   
 ### Q6: How many movies in the dataset are kid-friendly?  
 Data exploration challenges you to to look at the data you have in as many ways as you can. This sometimes involves creating new variables that can categorize the observations you make.  
-Below I've generated a copy of our movies dataset and included a new variable, kids, that will indicate whether or not the movie is kid-friendly:
+Below I've generated a copy of our movies dataset and included a new variable, `kids`, that will indicate whether or not the movie is kid-friendly:
 ```{r}
 library(dplyr)
 # create a copy of our movies dataset with an empty column titled "kids"
@@ -301,7 +301,7 @@ plot_three
 ```
 
 
-### Step 4: Titles and axes
+#### Step 4: Titles and axes
 ```{r}
 
 # calculate the R^2 of our model and then create a label 
@@ -340,7 +340,7 @@ plot_four
 ```
 
 
-### Step 5: Theme edits
+#### Step 5: Theme edits
 ```{r fig.width = 9, fig.asp = 0.6}
 plot_five <- plot_four +
   # start with a simple theme and then addon/modify elements
@@ -376,7 +376,7 @@ plot_five
 ```
 
 
-### Step 6: Export the graph
+#### Step 6: Export the graph
 ```{r}
 # the graph can be exported with the code below
 # png() can be used to make .png images
@@ -388,19 +388,24 @@ plot_five
 ```
 
 
-### Another Quick Example:
-Below is a quick example on how to use `plotly` package to create an interactive graph of the Auckland's Maunga Whau Volcano! The same plot that is featured in the Facebook banner for this event. 
+
+### Another Quick Example: Working with plotly
+`plotly` is a data visualization tool that's been optimized for several different programming languages, including R. It allows you to create interactive plots, like the one below, which plots a visualization of Auckland's Maunga Whau Volcano! This is the same plot that's featured in the Facebook banner for this event. Experience with `ggplot2` makes `plotly` a lot easier to use, since the frameworks for creating graphs in both are pretty similar:
 ```{r}
 library(plotly)
 # volcano is a numeric matrix that ships with R
 p <- plot_ly(z = ~volcano) %>% add_surface()
 p
 ```
+Read more about `plotly` functionality [here](https://plotly-book.cpsievert.me/)!
+
+
 
 ### Helpful `ggplot` Resources:
 - [ggplot2 cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf): Quick reference guide for many of ggplot's available plot types and plot customization arguments
 - [extensions for ggplot](http://www.ggplot2-exts.org/gallery/): A library of great/quality extensions for ggplot. Some are aimed at expanding the number of geom's and themes (ggforce, ggthemr), while some help with making pretty graphs without too much fiddling with settings (cowplot).
 - [ggplot2 textbook](https://www.springer.com/us/book/9783319242750): Hadley Wickham's (creator of ggplot2) easy-to-read textbook, available for free download through UCLA's WiFi/VPN!
+
 
 
 ### Presentation Sources
