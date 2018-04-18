@@ -174,7 +174,7 @@ ggplot(data = na.omit(movies2), aes(x = critics_score, fill = kids)) +
 library(ggplot2)
 
 # import the dataset first
-data <- read.csv("EconomistData.csv")
+data <- read.csv("https://www.dropbox.com/s/bbbyuddcacqbffr/EconomistData.csv?dl=1")
 
 # check if the data has been imported correctly
 head(data)
