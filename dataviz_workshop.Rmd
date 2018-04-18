@@ -99,14 +99,15 @@ ggplot(data = movies, aes(x = audience_score, y = critics_score, color = genre))
   facet_grid(. ~ title_type)     # the "." references the previous object, 
                                  # i.e. that the quality "title_type" is being "~" compared to
                                  # audience/critic score 
-```
+```  
+
 We could switch the use of genre and title type by faceting around the genre variable instead:
 ```{r}
 ggplot(data = movies, aes(x = audience_score, y = critics_score, color = title_type)) +
   geom_point(alpha = 0.5) +
   facet_wrap(~genre)
-```
-
+```  
+  
 `facet_grid()` can even introduce two new variables at once:
 ```{r}
 ggplot(data = movies, aes(x = audience_score, y = critics_score, color = genre)) +
@@ -167,7 +168,9 @@ ggplot(data = na.omit(movies2), aes(x = critics_score, fill = kids)) +
   geom_density(alpha = 0.5) + scale_fill_discrete(name = "Kid-Friendly?", labels = c("No", "Yes"))
 ```  
   
-### Recreating The Economist graph using ggplot
+  
+  
+### Recreating The Economist Graph Using ggplot
 
 ![Source: https://www.economist.com/blogs/dailychart/2011/12/corruption-and-development](https://cloud.githubusercontent.com/assets/16123495/22446702/db68941e-e702-11e6-861b-8624e58a8483.png)
 
@@ -256,7 +259,6 @@ generateRPointShapes()
 ```
 
 
-
 ```{r}
 # change the points to be shape 21 (hollow circle)
 # size option sets the whole shape size 
@@ -297,6 +299,7 @@ plot_three <- plot_three_a +
                   force = 1)
 plot_three
 ```
+
 
 ### Step 4: Titles and axes
 ```{r}
@@ -382,8 +385,10 @@ dev.off()
 
 
 ### Helpful ggplot Resources:
-- [ggplot cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf): Quick reference guide for many of ggplot's available plot types and plot customization arguments
+- [ggplot2 cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf): Quick reference guide for many of ggplot's available plot types and plot customization arguments
 - [extensions for ggplot](http://www.ggplot2-exts.org/gallery/): A library of great/quality extensions for ggplot. Some are aimed at expanding the number of geom's and themes (ggforce, ggthemr), while some help with making pretty graphs without too much fiddling with settings (cowplot).
+- [ggplot2 textbook](https://www.springer.com/us/book/9783319242750): Hadley Wickham's (creator of ggplot2) easy-to-read textbook, available for free download through UCLA's WiFi/VPN!
+
 
 ### Presentation Sources
 - This module is greatly inspired by class materials from the 2018 iXperience Data Science course taught by Andrew Collier and Zack Chauvin. 
