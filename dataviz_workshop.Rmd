@@ -1,7 +1,7 @@
 ---
-title: "Intro to Data Viz in R"
+title: "DataFest Presents: Intro to Data Visualization in R"
 author: "Ignat Kulinka, Aida Ylanan"
-date: "4/15/2018"
+date: "4/18/2018"
 output: html_document
 editor_options: 
   chunk_output_type: console
