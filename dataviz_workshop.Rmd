@@ -26,9 +26,10 @@ The dataset we'll examine in this part of the module is `movies.csv`. Let's read
 ```{r warning = FALSE}
 library(readr)
 movies <- read_csv("https://www.dropbox.com/s/6aq2vy59ac3clbf/movies.csv?dl=1")
+movies <- na.omit(movies)  # remove movies with missing observations
 ```   
     
-Our dataset `movies` contains information on 32 aspects of 321 different movies. The generous number of variables and observations, along with rich variety in variable types, allow us to visualize the data in many different ways.
+Our dataset `movies` contains information on 32 aspects of 305 different movies. The generous number of variables and observations, along with rich variety in variable types, allow us to visualize the data in many different ways.
 Given the numerous amount of directions this analysis could go, one helpful strategy in conducting effective data analysis is to generate a series of questions that could be answered with the data you have. This involves looking at and understanding the dataset's variables, and even thinking about how they might be altered or combined to form new features. We'll demonstrate with a few question-and-answer examples of data viz with `movies`.   
    
    
@@ -119,12 +120,11 @@ ggplot(data = movies, aes(x = audience_score, y = critics_score, color = genre))
 ### Q4: How do audience rating distributions change along movie runtime?
 Questions about distributions can be explored using density plots, made by adding `geom_density()` to the ggplot function call. We'll take a look at one now:
 ```{r}
-ggplot(data = na.omit(movies), aes(x = runtime, fill = audience_rating)) +
+ggplot(data = movies, aes(x = runtime, fill = audience_rating)) +
   geom_density(alpha = 0.5) + ylim(0, .04) + xlim(0, 200)
 ```  
   
 Alongside the density plot function, we added a few more arguments and function calls to adjust the appearance of our plot:  
-- We called `na.omit()` on our movies dataset to remove the missing observation from our dataset, which would have added noise to plot.  
 - Adjusting the alpha argument to our `geom_density()` call allows us to layer the distributions such that one can be seen behind the other. Decreasing the alpha value makes the colors lighter and easier to see through.  
 - Two additional function calls, `xlim()` and `ylim()`, allow us to add limits to our x- and y-axes.  
    
@@ -164,7 +164,7 @@ movies2$kids <- as.factor(movies2$kids)
    
 Let's use this new column to visualize how many kids movies there are in the dataset:
 ```{r}
-ggplot(data = na.omit(movies2), aes(x = critics_score, fill = kids)) +
+ggplot(data = movies2, aes(x = critics_score, fill = kids)) +
   geom_density(alpha = 0.5) + scale_fill_discrete(name = "Kid-Friendly?", labels = c("No", "Yes"))
 ```  
   
