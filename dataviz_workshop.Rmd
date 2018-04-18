@@ -16,6 +16,8 @@ If you haven't already, be sure to install the packages we'll be using in today'
 #install.packages("ggplot2")
 #install.packages("readr")
 #install.packages("dplyr")
+#install.packages("ggrepel")
+#install.packages("grid")
 ```  
    
 The dataset we'll examine in this part of the module is `movies.csv`. Let's read it into R:
@@ -142,7 +144,6 @@ Data exploration challenges you to to look at the data you have in as many ways 
 Below I've generated a copy of our movies dataset and included a new variable, kids, that will indicate whether or not the movie is kid-friendly:
 ```{r}
 library(dplyr)
-
 # create a copy of our movies dataset with an empty column titled "kids"
 movies2 <- movies %>% mutate(., kids = rep(0, nrow(movies)))
 
@@ -168,10 +169,12 @@ ggplot(data = na.omit(movies2), aes(x = critics_score, fill = kids)) +
 
 ![Source: https://www.economist.com/blogs/dailychart/2011/12/corruption-and-development](https://cloud.githubusercontent.com/assets/16123495/22446702/db68941e-e702-11e6-861b-8624e58a8483.png)
 
-#### Step 1: Data and scatter plot
+#### Step 1: Data, packages and a scatter plot
 
 ```{r}
 library(ggplot2)
+library(ggrepel)
+library(grid)
 
 # import the dataset first
 data <- read.csv("https://www.dropbox.com/s/bbbyuddcacqbffr/EconomistData.csv?dl=1")
@@ -221,31 +224,91 @@ plot_two
 
 
 #### Step 3: Point modification & labeling
+
+##### Step 3a: R point options
 ```{r}
-generateRPointShapes<-function(){
-  oldPar<-par()
-  par(font=2, mar=c(0.5,0,0,0))
-  y=rev(c(rep(1,6),rep(2,5), rep(3,5), rep(4,5), rep(5,5)))
-  x=c(rep(1:5,5),6)
-  plot(x, y, pch = 0:25, cex=1.5, ylim=c(1,5.5), xlim=c(1,6.5), 
-       axes=FALSE, xlab="", ylab="", bg="orange")
-  text(x, y, labels=0:25, pos=3)
-  par(mar=oldPar$mar,font=oldPar$font )
+# the generateRPointShapes function will plot pch options from R, 
+# these can be used for base R and ggplots alike
+generateRPointShapes <- function(){
+  # save old plotting parameters
+  oldPar <- par()
+  
+  # set new font and change margins
+  par(font = 2, mar = c(0.5,0,0,0))
+  
+  # generate the (x,y) coordinates for the plot
+  y <- rev(c(rep(1,6),rep(2,5), rep(3,5), rep(4,5), rep(5,5)))
+  x <- c(rep(1:5,5),6)
+  
+  # plot the different pch options
+  # background is set to orange for testing
+  plot(x, y, pch = 0:25, cex = 1.5, ylim = c(1,5.5), xlim = c(1,6.5), 
+       axes = FALSE, xlab = "", ylab = "", bg = "orange")
+  # add the test labels
+  text(x, y, labels = 0:25, pos = 3)
+  
+  # return to old plotting font and margins
+  par(mar = oldPar$mar,font = oldPar$font )
 }
+
+# generate the plot!
 generateRPointShapes()
 ```
 
 
-```{r}
 
-# 
-plot_three <- plot_two + geom_point(aes(color = Region), 
+```{r}
+# change the points to be shape 21 (hollow circle)
+# size option sets the whole shape size 
+# stroke option sets the border width of each point
+# fill option sets the background color 
+plot_three_a <- plot_two + geom_point(aes(color = Region), 
                                     shape = 21, 
                                     fill = "white", 
                                     size = 3, 
                                     stroke = 1.5)
 
+plot_three_a
+# another option is to use point shape 1 which looks similar
+# to the original Economist plot
+
+# the original graphic does not have the entire dataset labeled 
+# unfortunately the selection of countries in the original graph needs 
+# to be typed in by hand :/
+pointsToLabel <- c("Russia", "Venezuela", "Iraq", "Myanmar", "Sudan",
+                   "Afghanistan", "Congo", "Greece", "Argentina", "Brazil",
+                   "India", "Italy", "China", "South Africa", "Spane",
+                   "Botswana", "Cape Verde", "Bhutan", "Rwanda", "France",
+                   "United States", "Germany", "Britain", "Barbados", "Norway",
+                   "Japan", "New Zealand", "Singapore")
+
+plot_three <- plot_three_a + 
+  geom_text_repel(aes(label = Country),
+                   color = "gray20",
+                   data = subset(data, Country %in% pointsToLabel),
+                   force = 10)
 plot_three
+```
+
+### Step 4: Titles and axes
+
+```{r}
+(plot_four <- plot_three +
+  scale_x_continuous(name = "Corruption Perceptions Index, 2011 (10=least corrupt)",
+                     limits = c(.9, 10.5),
+                     breaks = 1:10) +
+  scale_y_continuous(name = "Human Development Index, 2011 (1=Best)",
+                     limits = c(0.2, 1.0),
+                     breaks = seq(0.2, 1.0, by = 0.1)) +
+  scale_color_manual(name = "",
+                     values = c("#24576D",
+                                "#099DD7",
+                                "#28AADC",
+                                "#248E84",
+                                "#F2583F",
+                                "#96503F")) +
+  ggtitle("Corruption and Human development"))
+
 ```
 
 ### Helpful ggplot Resources:
