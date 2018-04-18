@@ -341,7 +341,7 @@ plot_four
 
 
 ### Step 5: Theme edits
-```{r}
+```{r fig.width = 9, fig.asp = 0.6}
 plot_five <- plot_four +
   # start with a simple theme and then addon/modify elements
   theme_bw() +
@@ -378,9 +378,13 @@ plot_five
 
 ### Step 6: Export the graph
 ```{r}
-png(filename = "economist_plot.png", width = 800)
-plot_five
-dev.off()
+# the graph can be exported with the code below
+# png() can be used to make .png images
+# it is also possible to use jpeg() or pdf() instead
+
+#png(filename = "economist_plot.png", width = 800)
+#plot_five
+#dev.off()
 ```
 
 
